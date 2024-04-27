@@ -5,6 +5,7 @@ import pywt
 import argparse
 import matplotlib
 from PIL import Image
+from hilbertcurve.hilbertcurve import HilbertCurve
 
 
 def panic(message: str) -> NoReturn:
@@ -15,10 +16,11 @@ def panic(message: str) -> NoReturn:
 parser = argparse.ArgumentParser(description='Binary file visualization creator')
 parser.add_argument('file', type=str)
 parser.add_argument('-o', '--output', type=str, required=True)
-parser.add_argument('-g', '--grid-method', type=str, default="rows")
-parser.add_argument('-w', '--wavelet', type=str, default="haar")
-parser.add_argument('-l', '--level', type=int, default=1)
-parser.add_argument('-c', '--colormap', type=str, default="inferno")
+parser.add_argument('-g', '--grid-method', choices=["rows", "hilbert"], default="hilbert")
+parser.add_argument('-w', '--wavelet', choices=pywt.wavelist(kind="discrete"), default="haar")
+parser.add_argument('-m', '--extrapolation-mode', choices=["antireflect", "constant", "modes", "periodic", "reflect", "symmetric", "antisymmetric", "msg", "periodization", "smooth", "zero"], default="periodic")
+parser.add_argument('-l', '--level', type=int, default=2)
+parser.add_argument('-c', '--colormap', choices=matplotlib.colormaps.keys(), default="inferno")
 args = parser.parse_args()
 
 # read in file from disk
@@ -28,23 +30,23 @@ with open(args.file, 'rb') as file:
     f_bytes = file.read()
 
 closest_power_of_2 = int(2**int(log2(sqrt(len(f_bytes)))))
+p = int(log2(closest_power_of_2))
+hc=HilbertCurve(p=p, n=2, n_procs=-1)
 
 # process file
 # put bytes into a grid:
-bytes_2d = np.zeros((closest_power_of_2, closest_power_of_2))
-
-for i in range(closest_power_of_2):
-    for j in range(closest_power_of_2):
-        match args.grid_method:
-            case "rows":
-                index_1d = i + j * closest_power_of_2
-            case _:
-                panic(f"Grid Method {args.grid_method} not recognized!")
-        bytes_2d[i,j] = f_bytes[index_1d]
-
+f_bytes = np.array(list(f_bytes), dtype=np.uint8)
+match args.grid_method:
+    case "rows":
+        bytes_2d = f_bytes[:closest_power_of_2**2].reshape((closest_power_of_2,closest_power_of_2))
+    case "hilbert":
+        indices = hc.distances_from_points(list(np.ndindex((closest_power_of_2,closest_power_of_2))))
+        bytes_2d = f_bytes[np.array(indices).reshape((closest_power_of_2,closest_power_of_2))]
+    case _:
+        panic(f"Grid Method {args.grid_method} not recognized!")
 
 # apply a wavelet transform:
-wp = pywt.WaveletPacket2D(data=bytes_2d, wavelet=args.wavelet, mode='symmetric')
+wp = pywt.WaveletPacket2D(data=bytes_2d, wavelet=args.wavelet, mode=args.extrapolation_mode)
 
 image = np.zeros((closest_power_of_2, closest_power_of_2), dtype=np.float32)
 # write wavelet components
