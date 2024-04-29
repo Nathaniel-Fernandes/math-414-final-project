@@ -11,7 +11,10 @@ import pandas as pd
 import pathlib
 import cv2
 
+global IMAGE_SIZE
+IMAGE_SIZE = 128
 
+# Dataset object to organize image samples
 class CustomImageDataset(Dataset):
     def __init__(self, labels, images, transform=None, target_transform=None):
         self.labels = labels
@@ -33,7 +36,7 @@ class CustomImageDataset(Dataset):
 
         return image, label
 
-# Define the CNN architecture
+# CNN architecture
 class SimpleCNN(nn.Module):
     def __init__(self, num_classes=2, num_filters=16, kernel_size=3, padding=2):
         """
@@ -49,9 +52,9 @@ class SimpleCNN(nn.Module):
         self.c1 = nn.Conv2d(1, num_filters, tuple([kernel_size, kernel_size]), padding=padding)
         self.c2 = nn.Conv2d(num_filters, num_filters * 2, tuple([kernel_size, kernel_size]), padding=padding)
         self.pooling = nn.MaxPool2d(2, 2)
-        dimensions = int((((32 + 2 * padding - kernel_size + 1) // 2) - kernel_size + 1 + 2 * padding) // 2)
-        #print(num_filters * 2 * dimensions * dimensions)
-        self.f1 = nn.Linear(8192, 120)
+        dimensions = int((((IMAGE_SIZE + 2 * padding - kernel_size + 1) // 2) - kernel_size + 1 + 2 * padding) // 2)
+        print(num_filters * 2 * dimensions * dimensions)
+        self.f1 = nn.Linear(num_filters * 2 * dimensions * dimensions, 120)
         self.f2 = nn.Linear(120, 84)
         self.f3 = nn.Linear(84, num_classes)
 
@@ -88,7 +91,7 @@ labels = []
 for i in range(len(fileNames)):
     if i%2 == 1:
         img = np.float32(np.loadtxt(f"{fileNames[i]}"))
-        res = cv2.resize(img, dsize=(64, 64), interpolation=cv2.INTER_CUBIC)
+        res = cv2.resize(img, dsize=(IMAGE_SIZE, IMAGE_SIZE), interpolation=cv2.INTER_CUBIC)
 
         data.append(res)
         labels.append(0)
@@ -100,7 +103,7 @@ fileNames = list(malwarePath.iterdir())
 for i in range(len(fileNames)):
     if i%2 == 1:
         img = np.float32(np.loadtxt(f"{fileNames[i]}"))
-        res = cv2.resize(img, dsize=(64, 64), interpolation=cv2.INTER_CUBIC)
+        res = cv2.resize(img, dsize=(IMAGE_SIZE, IMAGE_SIZE), interpolation=cv2.INTER_CUBIC)
 
         data.append(res)
         labels.append(1)
@@ -116,8 +119,8 @@ test_size = len(data) - train_size
 train_dataset, val_dataset = torch.utils.data.random_split(fullDataset, [train_size, test_size])
 
 # create data loader
-train_loader = DataLoader(train_dataset, batch_size=32, shuffle=True)
-val_loader = DataLoader(val_dataset, batch_size=32, shuffle=False)
+train_loader = DataLoader(train_dataset, batch_size=16, shuffle=True)
+val_loader = DataLoader(val_dataset, batch_size=16, shuffle=False)
 
 
 # load device
@@ -167,15 +170,13 @@ def visulization(accuracies):
 
 def start():
     print('Starting Training -----------------------')
-    params = [[16, 3, 1]]  # 16, 32] #
-    kernel_sizes = [3]  # 3, 5
-    padding_list = [1]  # 0, 1
+    params = [[32,3,2]]
     for num_filters, kernel_size, padding in params:
         model = SimpleCNN(num_filters=num_filters, kernel_size=kernel_size, padding=padding)
         model = model.to(device)
         accuracies = []
-        for epoch in range(10):  # Loop over the dataset multiple times
-            print('Epoch {}/{}'.format(epoch + 1, 10))
+        for epoch in range(15):  # Loop over the dataset multiple times
+            print('Epoch {}/{}'.format(epoch + 1, 15))
             train(model, train_loader)
             accuracy = validate(model, val_loader)
             accuracies.append(accuracy)
@@ -186,18 +187,4 @@ def start():
 if __name__ == "__main__":
     start()
 
-"""  
-# Define transformations for the train set
-train_transforms = transforms.Compose([
-    #transforms.RandomHorizontalFlip(),
-    transforms.ToTensor(),
-    #transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5)),
-])
-
-# Define transformations for the validation set
-val_transforms = transforms.Compose([
-    transforms.ToPILImage(),
-    transforms.ToTensor()
-])
-"""
 
