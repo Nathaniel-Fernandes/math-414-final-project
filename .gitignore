@@ -5,3 +5,5 @@
 data/*
 exploration/*
 **DS_Store
+thirdparty/*
+*.pt

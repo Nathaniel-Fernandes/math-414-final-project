@@ -1,0 +1,6 @@
+[submodule "deepreflect"]
+	path = deepreflect
+	url = https://github.com/evandowning/deepreflect.git
+[submodule "third-party/malware-dection"]
+	path = third-party/malware-dection
+	url = https://github.com/kvu228/malware-dection.git
