@@ -32,3 +32,19 @@ The arguments available can be viewed with `-h`:
 python main.py -h
 ```
 
+## Citing
+Please use the following citation when using our work.
+
+```
+@article{Content-Agnostic-Malware-Identification,
+  author = {Nathaniel J. Fernandes and Griffith Thomas and Ben Allin},
+  title = {Content-Agnostic Malware Identification and Binary Data Visualization Using Wavelet Transforms},
+  year = {2024},
+  publisher = {GitHub},
+  journal = {GitHub repository. https://github.com/Nathaniel-Fernandes/math-414-final-project},
+  howpublished = {https://github.com/Nathaniel-Fernandes/math-414-final-project},
+  commit = {X}
+}
+```
+
+
