@@ -11,6 +11,8 @@ This is a simple file visualization script that uses a 2D wavelet transform to h
 
 ## Setup
 
+Please use Python 3.7 for backward compatibility with some of the requirements.
+
 ```bash
 # activate a virtual env before this if desired
 pip install -r requirements.txt
