@@ -13,6 +13,8 @@ This is a simple file visualization script that uses a 2D wavelet transform to h
 
 Please use Python 3.7 for backward compatibility with some of the requirements.
 
+If you are running into version errors, please use Python 3.7 and the **exact** minimum version specified in the `requirements.txt` file.
+
 ```bash
 # activate a virtual env before this if desired
 pip install -r requirements.txt
