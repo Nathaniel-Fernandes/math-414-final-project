@@ -5,7 +5,6 @@ import pywt
 import argparse
 import matplotlib
 from PIL import Image
-import os
 from hilbertcurve.hilbertcurve import HilbertCurve
 
 
@@ -50,8 +49,6 @@ def main():
 
     # read in file from disk
     f_bytes = []
-
-    print(os.getcwd())
 
     with open(args.file, "rb") as file:
         f_bytes = file.read()

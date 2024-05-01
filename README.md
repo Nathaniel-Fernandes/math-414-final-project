@@ -1,4 +1,3 @@
-<<<<<<< Updated upstream
 # Binary File Visualization with Wavelets
 
 <div style="display:flex;align-items:center;flex-direction:column;">
@@ -14,7 +13,7 @@ This is a simple file visualization script that uses a 2D wavelet transform to h
 
 ```bash
 # activate a virtual env before this if desired
-pip install pillow hilbertcurve matplotlib PyWavelets
+pip install -r requirements.txt
 ```
 
 ## Running
@@ -29,10 +28,3 @@ The arguments available can be viewed with `-h`:
 python main.py -h
 ```
 
-* compare different filetypes
-    * pdf
-    
-* compare benign vs malicious files
-* train a ML model to take the image and do classification (data set)
-* stenography vs. not stenography
->>>>>>> Stashed changes
